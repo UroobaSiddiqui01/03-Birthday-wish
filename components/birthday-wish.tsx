@@ -31,6 +31,7 @@ export default function BirthdayWish() {
   const [windowSize, setWindowSize] = useState<ConfettiProps>({ width: 0, height: 0 }) // Window size for confetti
   const [celebrating, setCelebrating] = useState<boolean>(false) // Whether celebration has started
   const [showCard, setShowCard] = useState<boolean>(false) // Whether to show the card
+  const [countdown, setCountdown] = useState<number>(5) // Countdown timer
 
   // Constants
   const totalCandles: number = 5 // Total number of candles
@@ -53,13 +54,18 @@ export default function BirthdayWish() {
     }
   }, [candlesLit, balloonsPoppedCount])
 
-  // Timer effect to show the card after 5 seconds
+  // Timer effect for countdown and showing the card after it reaches zero
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowCard(true)
-    }, 5000) // 5 seconds timer
-    return () => clearTimeout(timer) // Clear timer on unmount
-  }, [])
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown(prev => prev - 1)
+      }, 1000) // Decrease countdown every second
+
+      return () => clearInterval(timer) // Clear interval on unmount
+    } else {
+      setShowCard(true) // Show the card when countdown reaches zero
+    }
+  }, [countdown])
 
   // Function to light a candle
   const lightCandle = (index: number) => {
@@ -90,7 +96,10 @@ export default function BirthdayWish() {
 
   return (
     // Main container
-    <div className="min-h-screen bg-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+      {/* Display countdown timer */}
+      <h1 className="text-4xl font-bold text-black mb-4">{countdown > 0 ? countdown : "Go!"}</h1>
+      
       {/* Timer-based conditional rendering for the card */}
       {showCard && (
         <motion.div
